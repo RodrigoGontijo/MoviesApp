@@ -3,9 +3,9 @@ package com.hornet.movies.features.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hornet.movies.data.model.movie.Movie
-import com.hornet.movies.domain.usecase.GetGenresUseCase
-import com.hornet.movies.domain.usecase.GetMovieDetailsUseCase
-import com.hornet.movies.domain.usecase.GetTopRatedMoviesUseCase
+import com.hornet.movies.domain.GetGenresUseCase
+import com.hornet.movies.domain.GetMovieDetailsUseCase
+import com.hornet.movies.domain.GetTopRatedMoviesUseCase
 import com.hornet.movies.features.home.HomeUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -80,9 +80,9 @@ class HomeViewModel(
                 val details = getMovieDetails(id)
 
                 val updatedMovie = movieList.find { it.id == id }?.copy(
-                    director = details.director?.name,
-                    actors = details.actors.map { it.name },
-                    productionCompany = details.productionCompany?.name
+                    director = details.director?.name ?: "",
+                    actors = details.actors.mapNotNull { it.name }, // se algum ator tiver nome nulo, ignora
+                    productionCompany = details.productionCompany?.name ?: ""
                 )
 
                 updatedMovie?.let { updated ->

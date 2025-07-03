@@ -42,7 +42,7 @@ fun HomeScreen(
             items(uiState.movies) { movie ->
                 val isExpanded = uiState.expandedMovieIds.contains(movie.id)
                 val isHighlighted = uiState.selectedGenreId?.let {
-                    movie.genreIds?.contains(it)
+                    movie.genre_ids.contains(it)
                 } ?: false
 
                 MovieItem(
@@ -51,7 +51,7 @@ fun HomeScreen(
                     isHighlighted = isHighlighted,
                     onItemClick = { viewModel.toggleExpanded(movie.id) },
                     onPosterClick = {
-                        selectedPoster = "https://image.tmdb.org/t/p/w500${movie.posterPath}"
+                        selectedPoster = "https://image.tmdb.org/t/p/w500${movie.poster}"
                     }
                 )
             }

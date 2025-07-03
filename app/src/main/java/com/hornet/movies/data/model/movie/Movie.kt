@@ -9,13 +9,14 @@ data class Movie(
     val title: String = "",
     val overview: String = "",
     val vote_average: Double = 0.0,
-    val genre_ids: List<Int> = emptyList()
+    val genre_ids: List<Int> = emptyList(),
+    val director: String? = null,
+    val actors: List<String> = emptyList(),
+    val productionCompany: String? = null
 ) {
-    // Computed property to expose the full image URL for the poster
     val poster: String
         get() = poster_path.pathToUrl()
 
-    // Computed property to expose the full image URL for the backdrop
     val backdrop: String
         get() = backdrop_path.pathToUrl()
 }

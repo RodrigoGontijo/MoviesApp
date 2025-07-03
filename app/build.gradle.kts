@@ -83,7 +83,8 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-    // Koin DI
+    
     implementation(libs.insert.koin.android)
     implementation(libs.insert.koin.compose)
+    implementation(libs.coil.compose)
 }
