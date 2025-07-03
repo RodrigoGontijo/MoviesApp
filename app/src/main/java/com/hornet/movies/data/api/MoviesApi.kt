@@ -1,8 +1,7 @@
-package com.hornet.movies.data
+package com.hornet.movies.data.api
 import com.hornet.movies.data.model.meta.Genres
 import com.hornet.movies.data.model.movie.MovieDetails
 import com.hornet.movies.data.model.movie.MovieResults
-import com.hornet.movies.data.model.movie.Movie
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query

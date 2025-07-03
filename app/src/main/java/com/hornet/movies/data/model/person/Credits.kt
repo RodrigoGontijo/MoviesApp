@@ -1,9 +1,12 @@
 package com.hornet.movies.data.model.person
 
-import com.imbaland.movies.domain.model.Person
+data class Credits(
+    val cast: List<Person> = listOf(),
+    val crew: List<Person> = listOf()
+) {
+    val actors: List<Person>
+        get() = cast.take(3) // return only top 3 actors
 
-data class Credits(private val cast: List<Person> = listOf(), val crew: List<Person> = listOf()) {
-    private val ACTOR_COUNT = 3
-    val actors: List<Person> = cast.take(ACTOR_COUNT)
-    val director: Person? = crew.firstOrNull { it.department == "Directing" }
+    val director: Person?
+        get() = crew.firstOrNull { it.job == "Director" }
 }

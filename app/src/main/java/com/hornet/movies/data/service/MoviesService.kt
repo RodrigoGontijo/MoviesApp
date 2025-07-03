@@ -1,8 +1,9 @@
-package com.hornet.movies.data
+package com.hornet.movies.data.service
 
 import android.net.Uri
 import android.os.Build
 import com.hornet.movies.BuildConfig
+import com.hornet.movies.data.api.MoviesApi
 import com.hornet.movies.data.model.meta.Genres
 import com.hornet.movies.data.model.movie.MovieDetails
 import com.hornet.movies.data.model.movie.MovieResults
