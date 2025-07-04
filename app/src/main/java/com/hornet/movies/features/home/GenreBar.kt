@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun GenreBar(
-    genreCounts: Map<Int, Int>,
+    genreCounts: Map<Int, String>,
     selectedGenreId: Int?,
     onGenreClick: (Int?) -> Unit
 ) {
@@ -31,7 +31,7 @@ fun GenreBar(
             .padding(horizontal = 8.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // "Todos" para remover filtro
+
         GenreChip(
             label = "All",
             isSelected = selectedGenreId == null,
@@ -39,11 +39,10 @@ fun GenreBar(
         )
 
         genreCounts
-            .filter { it.value > 0 }
+            .filter { it.key > 0 }
             .forEach { (genreId, count) ->
-                val label = "$genreId ($count)" // pode substituir pelo nome do gênero se desejar
                 GenreChip(
-                    label = label,
+                    label = count,
                     isSelected = selectedGenreId == genreId,
                     onClick = { onGenreClick(genreId) }
                 )

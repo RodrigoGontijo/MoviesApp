@@ -6,7 +6,6 @@ import com.hornet.movies.data.model.movie.Movie
 import com.hornet.movies.domain.GetGenresUseCase
 import com.hornet.movies.domain.GetMovieDetailsUseCase
 import com.hornet.movies.domain.GetTopRatedMoviesUseCase
-import com.hornet.movies.features.home.HomeUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -26,6 +25,18 @@ class HomeViewModel(
 
     init {
         loadMoreMovies()
+        getAllGenres()
+    }
+
+    fun getAllGenres() {
+        viewModelScope.launch {
+            try {
+                val genres = getGenres()
+                _uiState.value = _uiState.value.copy(genres = genres)
+            } catch (e: Exception) {
+
+            }
+        }
     }
 
     fun loadMoreMovies() {
@@ -43,19 +54,27 @@ class HomeViewModel(
                     currentPage++
                     movieList.addAll(newMovies)
 
-                    val genreCount = movieList
+                    val rawGenreCount: Map<Int, Int> = movieList
                         .flatMap { it.genre_ids }
                         .groupingBy { it }
                         .eachCount()
 
+                    val genreCount: Map<Int, String> = rawGenreCount.mapNotNull { (genreId, count) ->
+                        val genreName = _uiState.value.genres[genreId]
+                        genreName?.let { genreId to "$it ($count)" }
+                    }.toMap()
+
+                    val filteredMovies = _uiState.value.selectedGenreId?.let { genreId ->
+                        movieList.filter { it.genre_ids.contains(genreId) }
+                    } ?: movieList
+
                     _uiState.value = _uiState.value.copy(
-                        movies = movieList.toList(),
+                        movies = filteredMovies,
                         isLoading = false,
                         genreCount = genreCount
                     )
                 }
             } catch (e: Exception) {
-                // Ignored, as error handling is not required
                 _uiState.value = _uiState.value.copy(isLoading = false)
             }
         }
@@ -81,7 +100,7 @@ class HomeViewModel(
 
                 val updatedMovie = movieList.find { it.id == id }?.copy(
                     director = details.director?.name ?: "",
-                    actors = details.actors.mapNotNull { it.name }, // se algum ator tiver nome nulo, ignora
+                    actors = details.actors.mapNotNull { it.name },
                     productionCompany = details.productionCompany?.name ?: ""
                 )
 
@@ -89,17 +108,33 @@ class HomeViewModel(
                     val index = movieList.indexOfFirst { it.id == id }
                     movieList[index] = updated
 
+                    val filteredMovies = _uiState.value.selectedGenreId?.let { genreId ->
+                        movieList.filter { it.genre_ids.contains(genreId) }
+                    } ?: movieList
+
                     _uiState.value = _uiState.value.copy(
-                        movies = movieList.toList()
+                        movies = filteredMovies
                     )
                 }
             } catch (e: Exception) {
-                // Details loading failed — silently ignore
+                // silently ignore
             }
         }
     }
 
     fun selectGenre(genreId: Int?) {
-        _uiState.value = _uiState.value.copy(selectedGenreId = genreId)
+        val currentSelected = _uiState.value.selectedGenreId
+        val newSelected = if (currentSelected == genreId) null else genreId
+
+        val filteredMovies = if (newSelected == null) {
+            movieList
+        } else {
+            movieList.filter { it.genre_ids.contains(newSelected) }
+        }
+
+        _uiState.value = _uiState.value.copy(
+            selectedGenreId = newSelected,
+            movies = filteredMovies
+        )
     }
 }
