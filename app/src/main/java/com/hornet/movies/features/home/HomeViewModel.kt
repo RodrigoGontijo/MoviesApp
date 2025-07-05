@@ -28,7 +28,7 @@ class HomeViewModel(
         getAllGenres()
     }
 
-    fun getAllGenres() {
+    private fun getAllGenres() {
         viewModelScope.launch {
             try {
                 val genres = getGenres()
