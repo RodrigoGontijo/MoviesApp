@@ -42,39 +42,34 @@ class HomeViewModel(
     fun loadMoreMovies() {
         if (endReached || _uiState.value.isLoading) return
 
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
+        _uiState.value = _uiState.value.copy(isLoading = true)
 
+        viewModelScope.launch {
             try {
                 val newMovies = getTopRatedMovies(currentPage)
+                val details = newMovies.associateWith { getMovieDetails(it.id) }
+                val genresMap = getGenres()
 
-                if (newMovies.isEmpty()) {
-                    endReached = true
-                } else {
-                    currentPage++
-                    movieList.addAll(newMovies)
+                movieList.addAll(newMovies)
+                currentPage++
+                endReached = newMovies.isEmpty()
 
-                    val rawGenreCount: Map<Int, Int> = movieList
-                        .flatMap { it.genre_ids }
-                        .groupingBy { it }
-                        .eachCount()
+                val genreCount: Map<Int, String> = movieList
+                    .flatMap { it.genre_ids }
+                    .groupingBy { it }
+                    .eachCount()
+                    .mapValues { (genreId, count) ->
+                        "${genresMap[genreId] ?: "Desconhecido"} ($count)"
+                    }
 
-                    val genreCount: Map<Int, String> = rawGenreCount.mapNotNull { (genreId, count) ->
-                        val genreName = _uiState.value.genres[genreId]
-                        genreName?.let { genreId to "$it ($count)" }
-                    }.toMap()
-
-                    val filteredMovies = _uiState.value.selectedGenreId?.let { genreId ->
-                        movieList.filter { it.genre_ids.contains(genreId) }
-                    } ?: movieList
-
-                    _uiState.value = _uiState.value.copy(
-                        movies = filteredMovies,
-                        isLoading = false,
-                        genreCount = genreCount
-                    )
-                }
+                _uiState.value = _uiState.value.copy(
+                    movies = movieList,
+                    isLoading = false,
+                    genres = genresMap,
+                    genreCount = genreCount
+                )
             } catch (e: Exception) {
+                // Lidar com erro se quiser
                 _uiState.value = _uiState.value.copy(isLoading = false)
             }
         }

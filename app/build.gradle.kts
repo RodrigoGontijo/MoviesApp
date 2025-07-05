@@ -87,4 +87,12 @@ dependencies {
     implementation(libs.insert.koin.android)
     implementation(libs.insert.koin.compose)
     implementation(libs.coil.compose)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.coroutines.test)
+    testImplementation(libs.mockk)
+    testImplementation(libs.turbine)
+
 }
+
+apply(from = "$rootDir/app/jacoco.gradle.kts")
