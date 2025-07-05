@@ -47,7 +47,6 @@ class HomeViewModel(
         viewModelScope.launch {
             try {
                 val newMovies = getTopRatedMovies(currentPage)
-                val details = newMovies.associateWith { getMovieDetails(it.id) }
                 val genresMap = getGenres()
 
                 movieList.addAll(newMovies)
