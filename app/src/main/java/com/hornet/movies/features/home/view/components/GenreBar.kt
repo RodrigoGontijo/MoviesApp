@@ -1,4 +1,4 @@
-package com.hornet.movies.features.home
+package com.hornet.movies.features.home.view.components
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*

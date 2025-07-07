@@ -1,8 +1,7 @@
-package com.hornet.movies.features.home
+package com.hornet.movies.features.home.view.components
 
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -105,7 +104,7 @@ fun MovieItem(
                 }
             }
 
-            movie.backdrop?.let {
+            movie.backdrop.let {
                 Spacer(modifier = Modifier.height(8.dp))
                 Image(
                     painter = rememberAsyncImagePainter("https://image.tmdb.org/t/p/w500$it"),

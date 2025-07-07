@@ -1,4 +1,4 @@
-package com.hornet.movies.features.home
+package com.hornet.movies.features.home.viewmodel
 
 
 import androidx.lifecycle.ViewModel
@@ -7,6 +7,7 @@ import com.hornet.movies.data.model.movie.Movie
 import com.hornet.movies.domain.GetGenresUseCase
 import com.hornet.movies.domain.GetMovieDetailsUseCase
 import com.hornet.movies.domain.GetTopRatedMoviesUseCase
+import com.hornet.movies.features.home.state.HomeUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -118,7 +119,7 @@ class HomeViewModel(
 
                     movieList[index] = updatedMovie
 
-                    // Reaplica filtro com base no gênero
+                    // Reaply filter based on the selected genre
                     val selectedGenreId = _uiState.value.selectedGenreId
                     val filteredMovies = if (selectedGenreId != null) {
                         movieList.filter { it.genre_ids.contains(selectedGenreId) }
@@ -126,7 +127,7 @@ class HomeViewModel(
                         movieList
                     }
 
-                    // Força recomposição com nova instância da lista
+                    // Forces recomposition with a new instance of the list
                     _uiState.value = _uiState.value.copy(
                         movies = filteredMovies.toList()
                     )
@@ -153,7 +154,7 @@ class HomeViewModel(
 
         _uiState.value = _uiState.value.copy(
             selectedGenreId = newSelected,
-            movies = filteredMovies.toList() // força recomposição
+            movies = filteredMovies.toList() // Forces recomposition
         )
     }
 }
