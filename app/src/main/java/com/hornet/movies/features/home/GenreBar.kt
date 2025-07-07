@@ -1,16 +1,11 @@
 package com.hornet.movies.features.home
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -26,46 +21,30 @@ fun GenreBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceVariant)
             .horizontalScroll(scrollState)
             .padding(horizontal = 8.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-
-        GenreChip(
-            label = "All",
-            isSelected = selectedGenreId == null,
-            onClick = { onGenreClick(null) }
+        AssistChip(
+            onClick = { onGenreClick(null) },
+            label = { Text("All") },
+            colors = AssistChipDefaults.assistChipColors(
+                containerColor = if (selectedGenreId == null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+                labelColor = if (selectedGenreId == null) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         )
 
         genreCounts
             .filter { it.key > 0 }
             .forEach { (genreId, count) ->
-                GenreChip(
-                    label = count,
-                    isSelected = selectedGenreId == genreId,
-                    onClick = { onGenreClick(genreId) }
+                AssistChip(
+                    onClick = { onGenreClick(genreId) },
+                    label = { Text(count) },
+                    colors = AssistChipDefaults.assistChipColors(
+                        containerColor = if (selectedGenreId == genreId) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+                        labelColor = if (selectedGenreId == genreId) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 )
             }
-    }
-}
-
-@Composable
-fun GenreChip(
-    label: String,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
-    Surface(
-        color = if (isSelected) MaterialTheme.colorScheme.primary else Color.LightGray,
-        shape = MaterialTheme.shapes.medium,
-        modifier = Modifier
-            .clickable(onClick = onClick)
-    ) {
-        Text(
-            text = label,
-            color = if (isSelected) Color.White else Color.Black,
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-        )
     }
 }

@@ -34,7 +34,9 @@ class HomeViewModel(
                 val genres = getGenres()
                 _uiState.value = _uiState.value.copy(genres = genres)
             } catch (e: Exception) {
-
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Error when loading genres: ${e.localizedMessage}"
+                )
             }
         }
     }
@@ -58,7 +60,7 @@ class HomeViewModel(
                     .groupingBy { it }
                     .eachCount()
                     .mapValues { (genreId, count) ->
-                        "${genresMap[genreId] ?: "Desconhecido"} ($count)"
+                        "${genresMap[genreId] ?: "Unknown"} ($count)"
                     }
 
                 _uiState.value = _uiState.value.copy(
@@ -68,8 +70,10 @@ class HomeViewModel(
                     genreCount = genreCount
                 )
             } catch (e: Exception) {
-                // Lidar com erro se quiser
-                _uiState.value = _uiState.value.copy(isLoading = false)
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    errorMessage = "Error when loading movies ${e.localizedMessage}"
+                )
             }
         }
     }
@@ -92,26 +96,29 @@ class HomeViewModel(
             try {
                 val details = getMovieDetails(id)
 
-                val updatedMovie = movieList.find { it.id == id }?.copy(
+                val movieIndex = movieList.indexOfFirst { it.id == id }
+                if (movieIndex == -1) return@launch
+
+                val original = movieList[movieIndex]
+                val updated = original.copy(
                     director = details.director?.name ?: "",
-                    actors = details.actors.mapNotNull { it.name },
+                    actors = details.actors.map { it.name },
                     productionCompany = details.productionCompany?.name ?: ""
                 )
 
-                updatedMovie?.let { updated ->
-                    val index = movieList.indexOfFirst { it.id == id }
-                    movieList[index] = updated
+                movieList[movieIndex] = updated
 
-                    val filteredMovies = _uiState.value.selectedGenreId?.let { genreId ->
-                        movieList.filter { it.genre_ids.contains(genreId) }
-                    } ?: movieList
+                val filteredMovies = _uiState.value.selectedGenreId?.let { genreId ->
+                    movieList.filter { it.genre_ids.contains(genreId) }
+                } ?: movieList
 
-                    _uiState.value = _uiState.value.copy(
-                        movies = filteredMovies
-                    )
-                }
+                _uiState.value = _uiState.value.copy(
+                    movies = filteredMovies
+                )
             } catch (e: Exception) {
-                // silently ignore
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Error when loading movie details: ${e.localizedMessage}"
+                )
             }
         }
     }

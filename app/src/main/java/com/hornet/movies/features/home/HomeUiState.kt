@@ -11,4 +11,6 @@ data class HomeUiState(
     val selectedGenreId: Int? = null,
     val genreCount: Map<Int, String> = emptyMap(), // genreId -> count
     val genres: Map<Int, String> = emptyMap(),
+    val errorMessage: String? = null, // para exibir erros gerais
+    val loadingMovieIds: Set<Int> = emptySet() // IDs dos filmes com detalhes em carregamento
 )
