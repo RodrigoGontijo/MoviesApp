@@ -8,6 +8,7 @@ import com.hornet.movies.data.model.person.Person
 import com.hornet.movies.domain.GetGenresUseCase
 import com.hornet.movies.domain.GetMovieDetailsUseCase
 import com.hornet.movies.domain.GetTopRatedMoviesUseCase
+import com.hornet.movies.features.home.viewmodel.HomeViewModel
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers

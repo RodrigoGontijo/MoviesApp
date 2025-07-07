@@ -1,5 +1,4 @@
-package com.hornet.movies.features.home
-
+package com.hornet.movies.features.home.view
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,6 +9,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.hornet.movies.features.home.viewmodel.HomeViewModel
+import com.hornet.movies.features.home.view.components.GenreBar
+import com.hornet.movies.features.home.view.components.MovieItem
+import com.hornet.movies.features.home.view.components.PosterDialog
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -21,7 +24,7 @@ fun HomeScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     var selectedPoster by remember { mutableStateOf<String?>(null) }
 
-    // Exibe a snackbar de erro, se houver
+    // Show snackbar when an error message appears in the UI state
     LaunchedEffect(uiState.errorMessage) {
         uiState.errorMessage?.let {
             snackbarHostState.showSnackbar(it)
@@ -36,6 +39,7 @@ fun HomeScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
+            // Movie list
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -60,6 +64,7 @@ fun HomeScreen(
                     )
                 }
 
+                // Show loading indicator at the end of the list
                 if (uiState.isLoading) {
                     item {
                         Box(
@@ -74,6 +79,7 @@ fun HomeScreen(
                 }
             }
 
+            // Genre filter bar
             GenreBar(
                 genreCounts = uiState.genreCount,
                 selectedGenreId = uiState.selectedGenreId,
@@ -82,16 +88,18 @@ fun HomeScreen(
         }
     }
 
+    // Full screen poster dialog
     PosterDialog(
         posterUrl = selectedPoster,
         onDismiss = { selectedPoster = null }
     )
 
+    // Scroll to top when genre filter changes
     LaunchedEffect(uiState.selectedGenreId) {
         listState.animateScrollToItem(0)
     }
 
-    // Scroll listener para carregar mais filmes
+    // Load more movies when the user scrolls near the bottom
     LaunchedEffect(listState) {
         snapshotFlow { listState.layoutInfo.visibleItemsInfo }
             .collect { visibleItems ->

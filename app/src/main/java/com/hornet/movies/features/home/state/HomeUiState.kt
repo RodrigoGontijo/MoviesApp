@@ -1,7 +1,5 @@
-package com.hornet.movies.features.home
+package com.hornet.movies.features.home.state
 
-import com.hornet.movies.data.model.meta.Genre
-import com.hornet.movies.data.model.meta.Genres
 import com.hornet.movies.data.model.movie.Movie
 
 data class HomeUiState(
@@ -11,6 +9,6 @@ data class HomeUiState(
     val selectedGenreId: Int? = null,
     val genreCount: Map<Int, String> = emptyMap(), // genreId -> count
     val genres: Map<Int, String> = emptyMap(),
-    val errorMessage: String? = null, // para exibir erros gerais
-    val loadingMovieIds: Set<Int> = emptySet() // IDs dos filmes com detalhes em carregamento
+    val errorMessage: String? = null,
+    val loadingMovieIds: Set<Int> = emptySet() // Movies ids that have loading things happening
 )
