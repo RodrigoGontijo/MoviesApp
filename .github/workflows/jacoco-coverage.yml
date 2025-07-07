@@ -1,4 +1,4 @@
-name: JaCoCo Code Coverage
+name: JaCoCo Coverage (CI Check)
 
 on:
   pull_request:
