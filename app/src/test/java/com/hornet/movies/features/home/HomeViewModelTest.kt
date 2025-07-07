@@ -77,6 +77,7 @@ class HomeViewModelTest {
     fun `should unselect genre if selected twice`() = runTest {
         viewModel.selectGenre(1)
         viewModel.selectGenre(1)
+        advanceUntilIdle()
         assertNull(viewModel.uiState.value.selectedGenreId)
     }
 
@@ -113,15 +114,14 @@ class HomeViewModelTest {
         coEvery { getMovieDetails(1) } throws RuntimeException("fail")
         viewModel.toggleExpanded(1)
         advanceUntilIdle()
-        assertNotNull(viewModel.uiState.value)
+        assertTrue(viewModel.uiState.value.loadingMovieIds.isEmpty())
     }
 
     @Test
     fun `should not load more movies when already loading`() = runTest {
+        // Simula carregamento inicial
         viewModel.loadMoreMovies()
-
         viewModel.loadMoreMovies()
-
         advanceUntilIdle()
         assertFalse(viewModel.uiState.value.isLoading)
     }
@@ -135,7 +135,7 @@ class HomeViewModelTest {
 
     @Test
     fun `should skip update if movie is not found when fetching details`() = runTest {
-        viewModel.toggleExpanded(999) // ID inexistente
+        viewModel.toggleExpanded(999)
         advanceUntilIdle()
         assertEquals(3, viewModel.uiState.value.movies.size)
     }
@@ -169,25 +169,12 @@ class HomeViewModelTest {
 
     @Test
     fun `should not load more movies when endReached is true`() = runTest {
-        // Primeiro carregamento normal
+        coEvery { getTopRatedMovies(2) } returns emptyList()
         viewModel.loadMoreMovies()
         advanceUntilIdle()
-
-        // Simula retorno vazio para indicar que chegou ao fim
-        coEvery { getTopRatedMovies(any()) } returns emptyList()
-
-        // Este carregamento vai ativar o "endReached = true"
+        val count = viewModel.uiState.value.movies.size
         viewModel.loadMoreMovies()
         advanceUntilIdle()
-
-        // Captura o número atual de filmes
-        val movieCount = viewModel.uiState.value.movies.size
-
-        // Tenta carregar mais uma vez (deve ser ignorado por endReached)
-        viewModel.loadMoreMovies()
-        advanceUntilIdle()
-
-        // Verifica que nada foi adicionado
-        assertEquals(movieCount, viewModel.uiState.value.movies.size)
+        assertEquals(count, viewModel.uiState.value.movies.size)
     }
 }

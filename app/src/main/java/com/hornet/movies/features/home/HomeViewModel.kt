@@ -1,5 +1,6 @@
 package com.hornet.movies.features.home
 
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hornet.movies.data.model.movie.Movie
@@ -63,8 +64,15 @@ class HomeViewModel(
                         "${genresMap[genreId] ?: "Unknown"} ($count)"
                     }
 
+                val selectedGenreId = _uiState.value.selectedGenreId
+                val filteredMovies = if (selectedGenreId != null) {
+                    movieList.filter { it.genre_ids.contains(selectedGenreId) }
+                } else {
+                    movieList
+                }
+
                 _uiState.value = _uiState.value.copy(
-                    movies = movieList,
+                    movies = filteredMovies,
                     isLoading = false,
                     genres = genresMap,
                     genreCount = genreCount
@@ -72,7 +80,7 @@ class HomeViewModel(
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = "Error when loading movies ${e.localizedMessage}"
+                    errorMessage = "Error when loading movies: ${e.localizedMessage}"
                 )
             }
         }
@@ -91,33 +99,43 @@ class HomeViewModel(
         _uiState.value = _uiState.value.copy(expandedMovieIds = expanded)
     }
 
-    private fun fetchMovieDetails(id: Int) {
+    fun fetchMovieDetails(movieId: Int) {
         viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                loadingMovieIds = _uiState.value.loadingMovieIds + movieId
+            )
+
             try {
-                val details = getMovieDetails(id)
+                val movieDetails = getMovieDetails(movieId)
 
-                val movieIndex = movieList.indexOfFirst { it.id == id }
-                if (movieIndex == -1) return@launch
+                val index = movieList.indexOfFirst { it.id == movieId }
+                if (index != -1) {
+                    val updatedMovie = movieList[index].copy(
+                        director = movieDetails.director?.name.orEmpty(),
+                        actors = movieDetails.actors.mapNotNull { it.name },
+                        productionCompany = movieDetails.productionCompany?.name.orEmpty()
+                    )
 
-                val original = movieList[movieIndex]
-                val updated = original.copy(
-                    director = details.director?.name ?: "",
-                    actors = details.actors.map { it.name },
-                    productionCompany = details.productionCompany?.name ?: ""
-                )
+                    movieList[index] = updatedMovie
 
-                movieList[movieIndex] = updated
+                    // Reaplica filtro com base no gênero
+                    val selectedGenreId = _uiState.value.selectedGenreId
+                    val filteredMovies = if (selectedGenreId != null) {
+                        movieList.filter { it.genre_ids.contains(selectedGenreId) }
+                    } else {
+                        movieList
+                    }
 
-                val filteredMovies = _uiState.value.selectedGenreId?.let { genreId ->
-                    movieList.filter { it.genre_ids.contains(genreId) }
-                } ?: movieList
-
-                _uiState.value = _uiState.value.copy(
-                    movies = filteredMovies
-                )
+                    // Força recomposição com nova instância da lista
+                    _uiState.value = _uiState.value.copy(
+                        movies = filteredMovies.toList()
+                    )
+                }
             } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(errorMessage = e.message)
+            } finally {
                 _uiState.value = _uiState.value.copy(
-                    errorMessage = "Error when loading movie details: ${e.localizedMessage}"
+                    loadingMovieIds = _uiState.value.loadingMovieIds - movieId
                 )
             }
         }
@@ -135,7 +153,7 @@ class HomeViewModel(
 
         _uiState.value = _uiState.value.copy(
             selectedGenreId = newSelected,
-            movies = filteredMovies
+            movies = filteredMovies.toList() // força recomposição
         )
     }
 }

@@ -44,9 +44,8 @@ fun HomeScreen(
             ) {
                 items(uiState.movies) { movie ->
                     val isExpanded = uiState.expandedMovieIds.contains(movie.id)
-                    val isHighlighted = uiState.selectedGenreId?.let {
-                        movie.genre_ids.contains(it)
-                    } ?: false
+                    val isHighlighted = uiState.selectedGenreId != null &&
+                            movie.genre_ids.contains(uiState.selectedGenreId)
                     val isLoadingDetails = uiState.loadingMovieIds.contains(movie.id)
 
                     MovieItem(
@@ -87,6 +86,10 @@ fun HomeScreen(
         posterUrl = selectedPoster,
         onDismiss = { selectedPoster = null }
     )
+
+    LaunchedEffect(uiState.selectedGenreId) {
+        listState.animateScrollToItem(0)
+    }
 
     // Scroll listener para carregar mais filmes
     LaunchedEffect(listState) {
