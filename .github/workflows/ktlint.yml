@@ -1,0 +1,28 @@
+name: Ktlint Check
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  ktlint:
+    name: Run Ktlint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout repo
+        uses: actions/checkout@v4
+
+      - name: ☕ Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 17
+
+      - name: 🛠️ Grant permission to gradlew
+        run: chmod +x ./gradlew
+
+      - name: 🧼 Run ktlint
+        run: ./gradlew ktlintCheck
