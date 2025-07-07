@@ -1,5 +1,6 @@
 package com.hornet.movies.features.home
 
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hornet.movies.data.model.movie.Movie
@@ -34,7 +35,9 @@ class HomeViewModel(
                 val genres = getGenres()
                 _uiState.value = _uiState.value.copy(genres = genres)
             } catch (e: Exception) {
-
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Error when loading genres: ${e.localizedMessage}"
+                )
             }
         }
     }
@@ -58,18 +61,27 @@ class HomeViewModel(
                     .groupingBy { it }
                     .eachCount()
                     .mapValues { (genreId, count) ->
-                        "${genresMap[genreId] ?: "Desconhecido"} ($count)"
+                        "${genresMap[genreId] ?: "Unknown"} ($count)"
                     }
 
+                val selectedGenreId = _uiState.value.selectedGenreId
+                val filteredMovies = if (selectedGenreId != null) {
+                    movieList.filter { it.genre_ids.contains(selectedGenreId) }
+                } else {
+                    movieList
+                }
+
                 _uiState.value = _uiState.value.copy(
-                    movies = movieList,
+                    movies = filteredMovies,
                     isLoading = false,
                     genres = genresMap,
                     genreCount = genreCount
                 )
             } catch (e: Exception) {
-                // Lidar com erro se quiser
-                _uiState.value = _uiState.value.copy(isLoading = false)
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    errorMessage = "Error when loading movies: ${e.localizedMessage}"
+                )
             }
         }
     }
@@ -87,31 +99,44 @@ class HomeViewModel(
         _uiState.value = _uiState.value.copy(expandedMovieIds = expanded)
     }
 
-    private fun fetchMovieDetails(id: Int) {
+    fun fetchMovieDetails(movieId: Int) {
         viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                loadingMovieIds = _uiState.value.loadingMovieIds + movieId
+            )
+
             try {
-                val details = getMovieDetails(id)
+                val movieDetails = getMovieDetails(movieId)
 
-                val updatedMovie = movieList.find { it.id == id }?.copy(
-                    director = details.director?.name ?: "",
-                    actors = details.actors.mapNotNull { it.name },
-                    productionCompany = details.productionCompany?.name ?: ""
-                )
+                val index = movieList.indexOfFirst { it.id == movieId }
+                if (index != -1) {
+                    val updatedMovie = movieList[index].copy(
+                        director = movieDetails.director?.name.orEmpty(),
+                        actors = movieDetails.actors.mapNotNull { it.name },
+                        productionCompany = movieDetails.productionCompany?.name.orEmpty()
+                    )
 
-                updatedMovie?.let { updated ->
-                    val index = movieList.indexOfFirst { it.id == id }
-                    movieList[index] = updated
+                    movieList[index] = updatedMovie
 
-                    val filteredMovies = _uiState.value.selectedGenreId?.let { genreId ->
-                        movieList.filter { it.genre_ids.contains(genreId) }
-                    } ?: movieList
+                    // Reaplica filtro com base no gênero
+                    val selectedGenreId = _uiState.value.selectedGenreId
+                    val filteredMovies = if (selectedGenreId != null) {
+                        movieList.filter { it.genre_ids.contains(selectedGenreId) }
+                    } else {
+                        movieList
+                    }
 
+                    // Força recomposição com nova instância da lista
                     _uiState.value = _uiState.value.copy(
-                        movies = filteredMovies
+                        movies = filteredMovies.toList()
                     )
                 }
             } catch (e: Exception) {
-                // silently ignore
+                _uiState.value = _uiState.value.copy(errorMessage = e.message)
+            } finally {
+                _uiState.value = _uiState.value.copy(
+                    loadingMovieIds = _uiState.value.loadingMovieIds - movieId
+                )
             }
         }
     }
@@ -128,7 +153,7 @@ class HomeViewModel(
 
         _uiState.value = _uiState.value.copy(
             selectedGenreId = newSelected,
-            movies = filteredMovies
+            movies = filteredMovies.toList() // força recomposição
         )
     }
 }
