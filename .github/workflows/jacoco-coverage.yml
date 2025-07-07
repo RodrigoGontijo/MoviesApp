@@ -12,7 +12,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  test-and-report:
+  jacoco:
     name: Run Tests & Generate Coverage Report
     runs-on: ubuntu-latest
 
