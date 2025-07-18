@@ -49,13 +49,20 @@ class HomeViewModel(
         _uiState.value = _uiState.value.copy(isLoading = true)
 
         viewModelScope.launch {
-            try {
-                val newMovies = getTopRatedMovies(currentPage)
-                val genresMap = getGenres()
+            val newMovies = getTopRatedMovies(currentPage)
+            movieList.addAll(newMovies)
+            currentPage++
+            endReached = newMovies.isEmpty()
 
-                movieList.addAll(newMovies)
-                currentPage++
-                endReached = newMovies.isEmpty()
+            _uiState.value = _uiState.value.copy(
+                movies = newMovies,
+                isLoading = false
+            )
+        }
+
+        viewModelScope.launch {
+            try {
+                val genresMap = getGenres()
 
                 val genreCount: Map<Int, String> = movieList
                     .flatMap { it.genre_ids }

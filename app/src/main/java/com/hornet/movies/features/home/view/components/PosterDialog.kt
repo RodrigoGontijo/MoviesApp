@@ -26,12 +26,17 @@ fun PosterDialog(
     onDismiss: () -> Unit
 ) {
     if (posterUrl == null) return
-    /****************** Code Addition
-     ******************/
-    val textFinder = remember{TextVisionFinder()}
-    textFinder.findText(posterUrl)
-    /****************** Code Addition
-     ******************/
+
+    val textFinder = remember { TextVisionFinder() }
+    val detectedBoxes = remember { mutableStateListOf<RectF>() }
+
+    // Executa OCR quando uma nova imagem for aberta
+    LaunchedEffect(posterUrl) {
+        detectedBoxes.clear()
+        textFinder.findText(posterUrl) { boxes ->
+            detectedBoxes.addAll(boxes)
+        }
+    }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -55,23 +60,24 @@ fun PosterDialog(
                         .fillMaxWidth(0.85f)
                         .aspectRatio(2f / 3f)
                         .padding(8.dp)
-                        /****************** Code Addition
-                         ******************/
                         .drawWithContent {
-                            //Draw Original Content
                             drawContent()
-                            //Additional Draws
-                            val imageBounds = this.size
-                            // Demo rectangle at the center of the image and taking up 20% of width and height
-                            val demoRect = RectF(0.4f,0.4f, 0.6f,0.6f)
-                            drawRect(
-                                color = Color.Black,
-                                topLeft = Offset(demoRect.left * imageBounds.width,demoRect.top * imageBounds.height),
-                                size = Size(demoRect.width() * imageBounds.width, demoRect.height() * imageBounds.height)
-                            )
-                        },
-                        /****************** Code Addition
-                         ******************/
+
+                            val imageSize = size
+                            detectedBoxes.forEach { rect ->
+                                drawRect(
+                                    color = Color.Black, // ← Caixa preta sólida
+                                    topLeft = Offset(
+                                        rect.left * imageSize.width,
+                                        rect.top * imageSize.height
+                                    ),
+                                    size = Size(
+                                        rect.width() * imageSize.width,
+                                        rect.height() * imageSize.height
+                                    )
+                                )
+                            }
+                        }
                 )
             }
         }
