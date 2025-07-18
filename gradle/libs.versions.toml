@@ -19,6 +19,8 @@ coroutines = "1.7.3"
 mockk = "1.13.3"
 turbine = "1.0.0"
 material3 = "1.3.2"
+googleMlVision = "16.0.1"
+googleMlTranslate = "17.0.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -51,6 +53,9 @@ coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+
+google-mlkit-text = { module = "com.google.mlkit:text-recognition", version.ref = "googleMlVision" }
+google-mlkit-translate = { module = "com.google.mlkit:translate", version.ref = "googleMlTranslate" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

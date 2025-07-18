@@ -133,7 +133,7 @@ class HomeViewModel(
                     )
                 }
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(errorMessage = e.message)
+                _uiState.value = _uiState.value.copy(errorMessage = e.cause?.message)
             } finally {
                 _uiState.value = _uiState.value.copy(
                     loadingMovieIds = _uiState.value.loadingMovieIds - movieId
