@@ -49,15 +49,22 @@ class HomeViewModel(
         _uiState.value = _uiState.value.copy(isLoading = true)
 
         viewModelScope.launch {
-            val newMovies = getTopRatedMovies(currentPage)
-            movieList.addAll(newMovies)
-            currentPage++
-            endReached = newMovies.isEmpty()
+            try {
+                val newMovies = getTopRatedMovies(currentPage)
+                movieList.addAll(newMovies)
+                currentPage++
+                endReached = newMovies.isEmpty()
 
-            _uiState.value = _uiState.value.copy(
-                movies = newMovies,
-                isLoading = false
-            )
+                _uiState.value = _uiState.value.copy(
+                    movies = newMovies,
+                    isLoading = false
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    errorMessage = "Error when loading movies: ${e.localizedMessage}"
+                )
+            }
         }
 
         viewModelScope.launch {
