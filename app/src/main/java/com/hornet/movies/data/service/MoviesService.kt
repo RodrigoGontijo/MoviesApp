@@ -10,7 +10,6 @@ import com.hornet.movies.data.model.movie.MovieResults
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import kotlinx.coroutines.delay
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -48,7 +47,6 @@ class MoviesService private constructor() {
      * @return Genres containing list of id -> genre mappings
      */
     suspend fun getGenres(): Genres {
-        delay(5000)
         return apiService.genres()
     }
 
