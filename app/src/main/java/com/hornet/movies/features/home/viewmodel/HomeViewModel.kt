@@ -51,11 +51,25 @@ class HomeViewModel(
         viewModelScope.launch {
             try {
                 val newMovies = getTopRatedMovies(currentPage)
-                val genresMap = getGenres()
-
                 movieList.addAll(newMovies)
                 currentPage++
                 endReached = newMovies.isEmpty()
+
+                _uiState.value = _uiState.value.copy(
+                    movies = newMovies,
+                    isLoading = false
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    errorMessage = "Error when loading movies: ${e.localizedMessage}"
+                )
+            }
+        }
+
+        viewModelScope.launch {
+            try {
+                val genresMap = getGenres()
 
                 val genreCount: Map<Int, String> = movieList
                     .flatMap { it.genre_ids }
@@ -133,7 +147,7 @@ class HomeViewModel(
                     )
                 }
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(errorMessage = e.message)
+                _uiState.value = _uiState.value.copy(errorMessage = e.cause?.message)
             } finally {
                 _uiState.value = _uiState.value.copy(
                     loadingMovieIds = _uiState.value.loadingMovieIds - movieId

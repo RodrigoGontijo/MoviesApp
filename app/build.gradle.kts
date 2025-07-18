@@ -62,6 +62,8 @@ android {
 }
 
 dependencies {
+    implementation(libs.google.mlkit.text)
+    implementation(libs.google.mlkit.translate)
 
     implementation(libs.squareup.retrofit)
     implementation(libs.squareup.retrofit.moshi)

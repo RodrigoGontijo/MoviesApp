@@ -103,9 +103,9 @@ class MoviesService private constructor() {
         addConverterFactory(
             MoshiConverterFactory.create(
                 Moshi.Builder()
-            .add(Date::class.java, Rfc3339DateJsonAdapter().nullSafe())
-            .add(KotlinJsonAdapterFactory())
-            .build()))
+                    .add(Date::class.java, Rfc3339DateJsonAdapter().nullSafe())
+                    .add(KotlinJsonAdapterFactory())
+                    .build()))
         return this
     }
 
